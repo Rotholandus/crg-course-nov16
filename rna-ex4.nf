@@ -6,8 +6,8 @@ params.reads = "$baseDir/data/ggal/reads/ggal_gut_{1,2}.fq"
 params.annot = "$baseDir/data/ggal/annotation.gff"
 params.genome = "$baseDir/data/ggal/genome.fa"
 
-/* 
- * prints user convenience 
+/*
+ * prints user convenience
  */
 println "R N A T O Y   P I P E L I N E    "
 println "================================="
@@ -21,18 +21,18 @@ println "reads              : ${params.reads}"
  */
 genome_file = file(params.genome)
 annotation_file = file(params.annot)
- 
+
 /*
  * Step 1. Builds the genome index required by the mapping process
  */
 process buildIndex {
-    
+
     input:
     file genome from genome_file
-     
+
     output:
     file 'genome.index*' into genome_index
-       
+
     """
     bowtie2-build --threads ${task.cpus} ${genome} genome.index
     """
@@ -40,7 +40,7 @@ process buildIndex {
 
 /*
  * Create the `read_pairs` channel that emits tuples containing three elements:
- * the pair ID, the first read-pair file and the second read-pair file 
+ * the pair ID, the first read-pair file and the second read-pair file
  */
 read_pairs = Channel.fromFilePairs(params.reads, flat: true)
 
@@ -48,18 +48,16 @@ read_pairs = Channel.fromFilePairs(params.reads, flat: true)
  * Step 2. Maps each read-pair by using Tophat2 mapper tool
  */
 process mapping {
-     
+
     input:
-    file 'genome.index.fa' from genome_file 
+    file 'genome.index.fa' from genome_file
     file genome_index from genome_index
     set pair_id, file(read1), file(read2) from read_pairs
- 
+
     output:
     set pair_id, "tophat_out/accepted_hits.bam" into bam
- 
+
     """
     tophat2 -p ${task.cpus} genome.index ${read1} ${read2}
     """
 }
-
-

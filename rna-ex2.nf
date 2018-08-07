@@ -6,8 +6,8 @@ params.reads = "$baseDir/data/ggal/reads/ggal_gut_{1,2}.fq"
 params.annot = "$baseDir/data/ggal/annotation.gff"
 params.genome = "$baseDir/data/ggal/genome.fa"
 
-/* 
- * prints user convenience 
+/*
+ * prints user convenience
  */
 println "R N A T O Y   P I P E L I N E    "
 println "================================="
@@ -21,18 +21,18 @@ println "reads              : ${params.reads}"
  */
 genome_file = file(params.genome)
 annotation_file = file(params.annot)
- 
+
 /*
  * Step 1. Builds the genome index required by the mapping process
  */
 process buildIndex {
-    
+
     input:
     file genome from genome_file
-     
+
     output:
     file 'genome.index*' into genome_index
-       
+
     """
     bowtie2-build --threads ${task.cpus} ${genome} genome.index
     """
